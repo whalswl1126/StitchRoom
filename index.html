@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>자수도안 생성기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap');
+:root{--bg:#130b07;--sf:#2a1810;--sf2:#3a2318;--rim:#6b3d22;--gold:#d4a853;--gold2:#f0c878;--rose:#c4756a;--sage:#7aab8a;--tx:#f0e6d8;--tx2:#a89080;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(196,117,106,.12),transparent 60%),
+             radial-gradient(ellipse 60% 80% at 80% 90%,rgba(122,171,138,.08),transparent 60%);pointer-events:none}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 0 120px}
+header{padding:36px 24px 16px;text-align:center}
+.brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:6px}
+.bi{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),var(--rose));border-radius:12px;display:grid;place-items:center;font-size:22px;box-shadow:0 4px 16px rgba(212,168,83,.35)}
+h1{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header p{font-size:13px;color:var(--tx2)}
+.card{margin:0 16px 14px;background:var(--sf);border:1px solid var(--rim);border-radius:var(--r);overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.ch{padding:14px 18px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(107,61,34,.4)}
+.sb{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--rose));display:grid;place-items:center;font-size:12px;font-weight:700;color:#1a0f0a;flex-shrink:0}
+.ch h2{font-size:15px;font-weight:500}
+.dot{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--rim);transition:background .3s}
+.dot.done{background:var(--sage);box-shadow:0 0 6px var(--sage)}
+.cb{padding:18px}
+.uz{border:2px dashed var(--rim);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.uz:hover,.uz.drag{border-color:var(--gold);background:rgba(212,168,83,.06)}
+.uz input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.uz .ic{font-size:30px;margin-bottom:8px}
+.uz p{font-size:13px;color:var(--tx2)}
+.uz strong{color:var(--gold)}
+#pvw{display:none;position:relative;border-radius:10px;overflow:hidden;background:#000}
+#pvw img{width:100%;display:block;max-height:180px;object-fit:contain;background:#111}
+.pov{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:flex-end;padding:8px;background:linear-gradient(to bottom,rgba(0,0,0,.4),transparent 40%)}
+.brm{background:rgba(0,0,0,.6);border:none;color:#fff;font-size:16px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:grid;place-items:center}
+.fb{width:100%;padding:13px;background:var(--sf2);border:1px solid var(--rim);border-radius:10px;color:var(--tx);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;position:relative;overflow:hidden}
+.fb:hover{border-color:var(--gold);background:rgba(212,168,83,.08)}
+.fb input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.fbdg{background:var(--sage);color:#0a2012;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.sl-lbl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.sl-lbl span{font-size:13px;color:var(--tx2)}
+.sv{font-family:'Noto Serif KR',serif;font-size:26px;font-weight:700;background:linear-gradient(135deg,var(--gold2),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ss{font-size:11px;color:var(--tx2)}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;background:var(--sf2);border-radius:3px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--rose));cursor:pointer;box-shadow:0 2px 8px rgba(212,168,83,.5)}
+.sm{display:flex;justify-content:space-between;margin-top:5px}
+.sm span{font-size:10px;color:var(--tx2)}
+.ccg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.cc{padding:10px 4px;border-radius:10px;border:1.5px solid var(--rim);background:var(--sf2);color:var(--tx2);font-size:13px;cursor:pointer;text-align:center;transition:all .2s}
+.cc:hover{border-color:var(--gold);color:var(--gold)}
+.cc.active{border-color:var(--gold);background:rgba(212,168,83,.12);color:var(--gold2);font-weight:600}
+.cc small{display:block;font-size:10px;color:var(--tx2);margin-top:2px}
+.bgen{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% - 32px);margin:0 16px;padding:18px;border-radius:var(--r);border:none;cursor:pointer;background:linear-gradient(135deg,#d4a853,#c4756a 50%,#7aab8a);color:#1a0f0a;font-size:16px;font-weight:700;font-family:'Noto Serif KR',serif;box-shadow:0 8px 32px rgba(212,168,83,.35);transition:all .3s}
+.bgen:hover{box-shadow:0 12px 40px rgba(212,168,83,.5);transform:translateY(-1px)}
+.bgen:active{transform:translateY(0)}
+.bgen:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#pgc{display:none}
+.pss{display:flex;flex-direction:column;gap:8px}
+.ps{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;background:var(--sf2);border:1px solid transparent;transition:all .3s}
+.ps.active{border-color:var(--gold);background:rgba(212,168,83,.06)}
+.ps.done{border-color:var(--sage);background:rgba(122,171,138,.06)}
+.ps .pi{font-size:18px;width:26px;text-align:center}
+.ps .pl{flex:1;font-size:13px;color:var(--tx2)}
+.ps.active .pl{color:var(--gold)}.ps.done .pl{color:var(--sage)}
+.ps .pc{font-size:14px;opacity:0;transition:opacity .3s}.ps.done .pc{opacity:1}
+/* ── 결과 카드 ── */
+#rsc{display:none}
+.rtbs{display:flex;margin-bottom:14px;border:1px solid var(--rim);border-radius:10px;overflow:hidden}
+.rtb{flex:1;padding:10px 6px;font-size:12px;background:transparent;border:none;color:var(--tx2);cursor:pointer;transition:all .2s;text-align:center}
+.rtb:not(:last-child){border-right:1px solid var(--rim)}
+.rtb.active{background:rgba(212,168,83,.12);color:var(--gold2)}
+/* 미리보기 캔버스 */
+.cw{border-radius:10px;overflow:hidden;background:#111;position:relative;touch-action:none;cursor:grab;height:320px}
+.cw:active{cursor:grabbing}
+#cp,#cc{position:absolute;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges;transform-origin:0 0}
+.chint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:var(--tx2);font-size:11px;padding:4px 10px;border-radius:20px;pointer-events:none;white-space:nowrap;z-index:10}
+.zb{display:flex;align-items:center;gap:8px;margin-top:7px;justify-content:center}
+.zbt{width:30px;height:30px;border-radius:8px;background:var(--sf2);border:1px solid var(--rim);color:var(--tx);font-size:15px;cursor:pointer;display:grid;place-items:center;transition:all .2s}
+.zbt:hover{border-color:var(--gold);color:var(--gold)}
+.zp{font-size:12px;color:var(--tx2);min-width:38px;text-align:center}
+/* 범례 */
+.lt{font-size:13px;color:var(--tx2);margin-bottom:10px}
+.lg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--sf2);border:1px solid transparent}
+.li:hover{border-color:var(--rim)}
+.ls{width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.12);display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0}
+.li-info{min-width:0}
+.ld{font-size:12px;color:var(--gold);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ln{font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr{font-size:10px;color:var(--tx2)}
+/* ── 저장 섹션 ── */
+.svsec{margin-top:16px}
+.sv-head{font-size:11px;color:var(--tx2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sv-head::before,.sv-head::after{content:'';flex:1;height:1px;background:var(--rim)}
+/* 미리보기 모달 */
+#modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.9);flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 16px;overflow-y:auto}
+#modal.show{display:flex}
+.modal-head{width:100%;max-width:480px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.modal-title{font-size:15px;font-weight:600;color:var(--gold2)}
+.modal-close{background:var(--sf2);border:1px solid var(--rim);color:var(--tx);font-size:14px;padding:6px 14px;border-radius:8px;cursor:pointer}
+#modal-img{max-width:100%;border-radius:8px;display:block}
+.modal-hint{margin-top:12px;background:var(--sf);border:1px solid var(--gold);border-radius:10px;padding:14px 16px;max-width:480px;width:100%}
+.modal-hint p{font-size:13px;color:var(--tx2);line-height:1.6}
+.modal-hint strong{color:var(--gold2)}
+/* 저장 버튼들 */
+.save-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.svb{padding:14px 8px;border-radius:10px;border:1.5px solid var(--rim);background:var(--sf2);color:var(--tx);font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s}
+.svb:hover{border-color:var(--gold);background:rgba(212,168,83,.08)}
+.svb.ac1{background:linear-gradient(135deg,var(--gold),var(--rose));color:#1a0f0a;border:none;font-weight:700}
+.svb.ac2{background:linear-gradient(135deg,#7aab8a,#4a8a6a);color:#0a1a12;border:none;font-weight:700}
+.svb .si{font-size:22px}
+.svb .st{font-size:12px}
+.svb .sd{font-size:10px;opacity:.7}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sf2);border:1px solid var(--rim);color:var(--tx);font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;transition:all .3s;z-index:400;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--rim);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><div class="bi">&#129525;</div><h1>자수도안 생성기</h1></div>
+    <p>이미지를 DMC 자수 도안으로 변환</p>
+  </header>
+
+  <div class="card">
+    <div class="ch"><div class="sb">1</div><h2>이미지 선택</h2><div class="dot" id="d1"></div></div>
+    <div class="cb">
+      <div class="uz" id="uz">
+        <input type="file" id="ii" accept="image/*"/>
+        <div class="ic">&#128444;&#65039;</div>
+        <p><strong>탭하여 이미지 선택</strong><br>또는 드래그 앤 드롭</p>
+      </div>
+      <div id="pvw">
+        <img id="pi" src="" alt=""/>
+        <div class="pov"><button class="brm" id="brm">&#10005;</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="sb">2</div><h2>DMC 색상 파일</h2><div class="dot" id="d2"></div></div>
+    <div class="cb">
+      <label class="fb">
+        <input type="file" id="di" accept=".json"/>
+        <span>&#128203;</span>
+        <span style="flex:1;text-align:left">
+          <span id="dl">dmc.json 업로드</span>
+          <small style="display:block;color:var(--tx2);font-size:11px;margin-top:1px">DMC 실 색상 JSON 파일</small>
+        </span>
+        <span class="fbdg" id="db" style="display:none">&#10003; 로드됨</span>
+      </label>
+      <div style="margin-top:8px">
+        <button class="fb" id="bdf" style="justify-content:center;gap:8px">
+          &#127912; 기본 DMC 색상 사용 (150가지)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="sb">3</div><h2>격자 크기</h2><div class="dot done"></div></div>
+    <div class="cb">
+      <div class="sl-lbl">
+        <span>격자 크기 (n&#215;n)</span>
+        <div><span class="sv" id="gv">30</span><span class="ss" id="gs"> &#215; 30</span></div>
+      </div>
+      <input type="range" id="gsl" min="10" max="100" value="30" step="5"/>
+      <div class="sm"><span>10</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="sb">4</div><h2>색상 수 제한</h2><div class="dot done"></div></div>
+    <div class="cb">
+      <div class="ccg">
+        <button class="cc" data-v="10"><b>10</b><small>미니멀</small></button>
+        <button class="cc" data-v="20"><b>20</b><small>단순</small></button>
+        <button class="cc active" data-v="30"><b>30</b><small>보통</small></button>
+        <button class="cc" data-v="50"><b>50</b><small>상세</small></button>
+      </div>
+    </div>
+  </div>
+
+  <button class="bgen" id="bg" disabled>&#10024; 자수도안 생성하기</button>
+
+  <div class="card" id="pgc" style="margin-top:14px">
+    <div class="ch"><div class="sb">&#8987;</div><h2>처리 중...</h2></div>
+    <div class="cb"><div class="pss">
+      <div class="ps" id="p1"><span class="pi">&#128444;&#65039;</span><span class="pl">이미지 픽셀화</span><span class="pc">&#10003;</span></div>
+      <div class="ps" id="p2"><span class="pi">&#127912;</span><span class="pl">DMC 색상 매핑</span><span class="pc">&#10003;</span></div>
+      <div class="ps" id="p3"><span class="pi">&#128208;</span><span class="pl">격자 &amp; 기호 생성</span><span class="pc">&#10003;</span></div>
+      <div class="ps" id="p4"><span class="pi">&#127881;</span><span class="pl">도안 완성</span><span class="pc">&#10003;</span></div>
+    </div></div>
+  </div>
+
+  <div class="card" id="rsc" style="margin-top:14px">
+    <div class="ch"><div class="sb">&#127881;</div><h2>자수도안 완성</h2></div>
+    <div class="cb">
+      <div class="rtbs">
+        <button class="rtb active" data-tab="pat">&#128208; 기호 도안</button>
+        <button class="rtb" data-tab="col">&#127912; 색상 도안</button>
+        <button class="rtb" data-tab="leg">&#128203; 실 목록</button>
+      </div>
+
+      <div id="tp">
+        <div class="cw" id="wp" style="position:relative;overflow:hidden">
+          <canvas id="cp"></canvas>
+          <div class="chint">핀치 확대 &#183; 드래그 이동</div>
+        </div>
+        <div class="zb">
+          <button class="zbt" id="zip">+</button>
+          <span class="zp" id="zpp">100%</span>
+          <button class="zbt" id="zop">&#8722;</button>
+          <button class="zbt" id="zfp">&#8861;</button>
+        </div>
+      </div>
+
+      <div id="tc" style="display:none">
+        <div class="cw" id="wc" style="position:relative;overflow:hidden">
+          <canvas id="cc"></canvas>
+          <div class="chint">핀치 확대 &#183; 드래그 이동</div>
+        </div>
+        <div class="zb">
+          <button class="zbt" id="zic">+</button>
+          <span class="zp" id="zpc">100%</span>
+          <button class="zbt" id="zoc">&#8722;</button>
+          <button class="zbt" id="zfc">&#8861;</button>
+        </div>
+      </div>
+
+      <div id="tl" style="display:none">
+        <div class="lt">&#129525; 사용된 DMC 실 목록</div>
+        <div class="lg" id="lg"></div>
+      </div>
+
+      <!-- 저장 섹션 -->
+      <div class="svsec">
+        <div class="sv-head">저장하기</div>
+        <div class="save-grid">
+          <button class="svb" id="sv-pat-png">
+            <span class="si">&#128208;</span>
+            <span class="st">기호 도안</span>
+            <span class="sd">PNG 미리보기 &amp; 저장</span>
+          </button>
+          <button class="svb" id="sv-col-png">
+            <span class="si">&#127912;</span>
+            <span class="st">색상 도안</span>
+            <span class="sd">PNG 미리보기 &amp; 저장</span>
+          </button>
+          <button class="svb ac1" id="sv-pat-pdf">
+            <span class="si">&#128196;</span>
+            <span class="st">기호 도안 PDF</span>
+            <span class="sd">실 목록 표 포함</span>
+          </button>
+          <button class="svb ac2" id="sv-full-pdf">
+            <span class="si">&#128203;</span>
+            <span class="st">전체 PDF</span>
+            <span class="sd">기호+색상+실목록</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PNG 미리보기 모달 -->
+<div id="modal">
+  <div class="modal-head">
+    <span class="modal-title" id="modal-title">도안 미리보기</span>
+    <button class="modal-close" id="modal-close">&#10005; 닫기</button>
+  </div>
+  <img id="modal-img" src="" alt="미리보기"/>
+  <div class="modal-hint">
+    <p>&#128241; <strong>안드로이드</strong>: 이미지를 <strong>길게 누르기</strong> &#8594; "이미지 저장"<br>
+    &#128187; <strong>PC</strong>: 이미지에서 <strong>우클릭</strong> &#8594; "이미지를 다른 이름으로 저장"<br>
+    &#128247; 또는 아래 버튼으로 직접 저장 시도</p>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:10px;width:100%;max-width:480px">
+    <button class="svb" id="modal-try-save" style="flex:1;flex-direction:row;padding:12px 16px;border-radius:10px">
+      <span>&#11015;&#65039;</span><span style="font-size:13px">저장 시도하기</span>
+    </button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ===== DMC 색상 데이터 ===== */
+const DMC=[
+  {id:"blanc",name:"White",rgb:[255,255,255]},{id:"310",name:"Black",rgb:[0,0,0]},
+  {id:"321",name:"Red",rgb:[178,34,34]},{id:"666",name:"Bright Red",rgb:[204,0,0]},
+  {id:"304",name:"Med Red",rgb:[172,29,47]},{id:"498",name:"Dark Red",rgb:[142,14,34]},
+  {id:"816",name:"Garnet",rgb:[158,14,34]},{id:"819",name:"Lt Baby Pink",rgb:[255,220,220]},
+  {id:"776",name:"Med Pink",rgb:[255,160,170]},{id:"899",name:"Med Rose",rgb:[230,120,140]},
+  {id:"335",name:"Rose",rgb:[220,80,100]},{id:"326",name:"Vry Dk Rose",rgb:[185,50,75]},
+  {id:"3687",name:"Mauve",rgb:[196,112,130]},{id:"208",name:"Vry Dk Lavender",rgb:[130,80,155]},
+  {id:"209",name:"Dk Lavender",rgb:[165,115,185]},{id:"210",name:"Med Lavender",rgb:[195,155,210]},
+  {id:"211",name:"Lt Lavender",rgb:[220,195,230]},{id:"550",name:"Vry Dk Violet",rgb:[90,30,100]},
+  {id:"552",name:"Med Violet",rgb:[140,60,155]},{id:"553",name:"Violet",rgb:[170,90,175]},
+  {id:"554",name:"Lt Violet",rgb:[210,160,205]},{id:"333",name:"Vry Dk Blue Violet",rgb:[80,60,130]},
+  {id:"340",name:"Med Blue Violet",rgb:[150,145,200]},{id:"791",name:"Vry Dk Cornflower",rgb:[65,70,130]},
+  {id:"792",name:"Dk Cornflower",rgb:[80,95,155]},{id:"793",name:"Med Cornflower",rgb:[115,130,180]},
+  {id:"820",name:"Vry Dk Royal Blue",rgb:[30,45,130]},{id:"824",name:"Vry Dk Blue",rgb:[50,85,145]},
+  {id:"825",name:"Dk Blue",rgb:[70,115,165]},{id:"826",name:"Med Blue",rgb:[100,145,190]},
+  {id:"827",name:"Vry Lt Blue",rgb:[170,205,230]},{id:"996",name:"Med Electric Blue",rgb:[40,175,225]},
+  {id:"807",name:"Peacock Blue",rgb:[80,175,195]},{id:"964",name:"Lt Sea Green",rgb:[160,220,215]},
+  {id:"993",name:"Vry Lt Aquamarine",rgb:[130,210,200]},{id:"992",name:"Med Aquamarine",rgb:[95,190,180]},
+  {id:"991",name:"Dk Aquamarine",rgb:[60,160,155]},{id:"700",name:"Bright Green",rgb:[30,130,55]},
+  {id:"702",name:"Kelly Green",rgb:[60,160,70]},{id:"704",name:"Chartreuse",rgb:[115,195,80]},
+  {id:"906",name:"Med Parrot Green",rgb:[90,185,65]},{id:"904",name:"Vry Dk Parrot Green",rgb:[45,135,40]},
+  {id:"472",name:"Ultra Lt Avocado",rgb:[200,220,145]},{id:"470",name:"Lt Avocado",rgb:[140,185,90]},
+  {id:"469",name:"Avocado",rgb:[105,155,65]},{id:"937",name:"Med Avocado",rgb:[85,130,55]},
+  {id:"734",name:"Lt Olive",rgb:[185,185,110]},{id:"732",name:"Olive",rgb:[140,135,65]},
+  {id:"730",name:"Vry Dk Olive",rgb:[90,85,30]},{id:"3347",name:"Med Yellow Green",rgb:[130,175,95]},
+  {id:"3346",name:"Hunter Green",rgb:[100,145,75]},{id:"3345",name:"Dk Hunter Green",rgb:[70,115,55]},
+  {id:"501",name:"Dk Blue Green",rgb:[55,105,80]},{id:"502",name:"Blue Green",rgb:[80,135,105]},
+  {id:"503",name:"Med Blue Green",rgb:[130,175,150]},{id:"562",name:"Med Jade",rgb:[80,155,120]},
+  {id:"911",name:"Med Emerald Green",rgb:[50,155,100]},{id:"909",name:"Vry Dk Emerald",rgb:[15,110,65]},
+  {id:"722",name:"Lt Orange Spice",rgb:[245,165,110]},{id:"721",name:"Med Orange Spice",rgb:[235,135,75]},
+  {id:"720",name:"Dk Orange Spice",rgb:[210,100,40]},{id:"947",name:"Burnt Orange",rgb:[245,120,60]},
+  {id:"946",name:"Med Burnt Orange",rgb:[225,95,30]},{id:"608",name:"Bright Orange",rgb:[245,100,40]},
+  {id:"606",name:"Bright Orange-Red",rgb:[230,50,20]},{id:"3340",name:"Med Apricot",rgb:[250,145,105]},
+  {id:"3341",name:"Apricot",rgb:[255,175,140]},{id:"402",name:"Vry Lt Mahogany",rgb:[255,185,145]},
+  {id:"3776",name:"Med Mahogany",rgb:[210,125,75]},{id:"400",name:"Dk Mahogany",rgb:[155,75,35]},
+  {id:"918",name:"Dk Red Copper",rgb:[145,60,25]},{id:"920",name:"Med Copper",rgb:[195,100,50]},
+  {id:"921",name:"Copper",rgb:[215,120,60]},{id:"3830",name:"Terra Cotta",rgb:[195,95,70]},
+  {id:"869",name:"Vry Dk Hazelnut",rgb:[120,70,35]},{id:"420",name:"Dk Hazelnut",rgb:[150,100,50]},
+  {id:"977",name:"Lt Golden Brown",rgb:[220,160,90]},{id:"976",name:"Med Golden Brown",rgb:[195,130,65]},
+  {id:"434",name:"Lt Brown",rgb:[155,100,55]},{id:"433",name:"Med Brown",rgb:[130,80,40]},
+  {id:"801",name:"Dk Coffee Brown",rgb:[100,60,30]},{id:"938",name:"Ultra Dk Coffee",rgb:[70,35,15]},
+  {id:"3371",name:"Black Brown",rgb:[40,20,10]},{id:"3782",name:"Lt Mocha Brown",rgb:[175,145,115]},
+  {id:"841",name:"Lt Beige Brown",rgb:[195,170,140]},{id:"842",name:"Vry Lt Beige Brown",rgb:[215,195,170]},
+  {id:"840",name:"Med Beige Brown",rgb:[170,140,110]},{id:"839",name:"Dk Beige Brown",rgb:[140,110,80]},
+  {id:"543",name:"Ultra Lt Beige",rgb:[230,215,195]},{id:"950",name:"Lt Desert Sand",rgb:[225,190,170]},
+  {id:"754",name:"Lt Peach",rgb:[245,210,195]},{id:"760",name:"Salmon",rgb:[245,155,145]},
+  {id:"347",name:"Vry Dk Salmon",rgb:[185,55,55]},{id:"350",name:"Med Coral",rgb:[215,75,65]},
+  {id:"352",name:"Lt Coral",rgb:[245,135,120]},{id:"351",name:"Coral",rgb:[235,105,90]},
+  {id:"353",name:"Peach",rgb:[255,185,165]},{id:"891",name:"Dk Carnation",rgb:[230,85,100]},
+  {id:"892",name:"Med Carnation",rgb:[245,120,130]},{id:"309",name:"Dk Rose",rgb:[195,55,80]},
+  {id:"ecru",name:"Ecru",rgb:[240,234,214]},{id:"3865",name:"Winter White",rgb:[245,243,235]},
+  {id:"746",name:"Off White",rgb:[255,250,225]},{id:"745",name:"Lt Pale Yellow",rgb:[255,240,175]},
+  {id:"744",name:"Pale Yellow",rgb:[255,225,135]},{id:"743",name:"Med Yellow",rgb:[250,200,85]},
+  {id:"742",name:"Lt Tangerine",rgb:[250,175,55]},{id:"741",name:"Med Tangerine",rgb:[245,145,30]},
+  {id:"740",name:"Tangerine",rgb:[240,120,15]},{id:"725",name:"Lt Topaz",rgb:[245,195,80]},
+  {id:"783",name:"Med Topaz",rgb:[200,155,60]},{id:"782",name:"Dk Topaz",rgb:[170,120,35]},
+  {id:"780",name:"Ultra Dk Topaz",rgb:[110,70,15]},{id:"676",name:"Lt Old Gold",rgb:[230,200,125]},
+  {id:"729",name:"Med Old Gold",rgb:[200,160,70]},{id:"680",name:"Dk Old Gold",rgb:[175,130,45]},
+  {id:"3046",name:"Med Yellow Beige",rgb:[215,190,145]},{id:"3045",name:"Dk Yellow Beige",rgb:[180,145,95]},
+  {id:"611",name:"Drab Brown",rgb:[155,130,95]},{id:"610",name:"Dk Drab Brown",rgb:[120,95,65]},
+  {id:"436",name:"Tan",rgb:[200,155,95]},{id:"437",name:"Lt Tan",rgb:[220,185,135]},
+  {id:"738",name:"Vry Lt Tan",rgb:[235,210,170]},{id:"3024",name:"Vry Lt Brown Gray",rgb:[225,220,210]},
+  {id:"3023",name:"Lt Brown Gray",rgb:[185,178,165]},{id:"3022",name:"Med Brown Gray",rgb:[145,135,120]},
+  {id:"3021",name:"Vry Dk Brown Gray",rgb:[65,55,45]},{id:"844",name:"Ultra Dk Beaver",rgb:[80,75,75]},
+  {id:"645",name:"Vry Dk Beaver",rgb:[105,100,100]},{id:"647",name:"Med Beaver Gray",rgb:[170,165,162]},
+  {id:"648",name:"Lt Beaver Gray",rgb:[200,198,195]},{id:"318",name:"Lt Steel Gray",rgb:[185,185,190]},
+  {id:"414",name:"Dk Steel Gray",rgb:[135,135,145]},{id:"415",name:"Pearl Gray",rgb:[210,210,215]},
+  {id:"317",name:"Pewter Gray",rgb:[130,128,135]},{id:"413",name:"Dk Pewter Gray",rgb:[95,92,100]},
+  {id:"3799",name:"Vry Dk Pewter Gray",rgb:[60,58,65]},{id:"762",name:"Vry Lt Pearl Gray",rgb:[230,230,232]},
+  {id:"928",name:"Vry Lt Gray Green",rgb:[205,215,210]},{id:"926",name:"Med Gray Green",rgb:[135,160,155]},
+  {id:"924",name:"Vry Dk Gray Green",rgb:[80,110,105]},{id:"519",name:"Sky Blue",rgb:[100,170,200]},
+  {id:"518",name:"Lt Wedgwood",rgb:[75,150,185]},{id:"517",name:"Dk Wedgwood",rgb:[55,120,160]},
+  {id:"932",name:"Lt Antique Blue",rgb:[160,175,205]},{id:"931",name:"Med Antique Blue",rgb:[115,135,175]},
+  {id:"930",name:"Dk Antique Blue",rgb:[80,100,145]},{id:"823",name:"Dk Navy Blue",rgb:[35,50,110]},
+  {id:"336",name:"Navy Blue",rgb:[45,65,125]},{id:"797",name:"Royal Blue",rgb:[55,80,160]},
+  {id:"799",name:"Med Delft Blue",rgb:[110,135,190]},{id:"3325",name:"Lt Baby Blue",rgb:[180,210,230]},
+  {id:"334",name:"Med Baby Blue",rgb:[100,155,200]},{id:"312",name:"Vry Dk Baby Blue",rgb:[65,105,165]},
+];
+const SYM=['■','●','▲','★','♦','♠','♥','♣','✦','✿','◆','○','△','☆','◇','□','✚','✖','❤','✾',
+  'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T',
+  'U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0','+','-','=','/'];
+
+let imgF=null, dmcC=null, gridN=30, maxK=30, patPx=null, used={};
+let modalDataUrl='', modalName='';
+const CELL=24, LW=24;
+
+const dist=(a,b)=>Math.sqrt(2*(a[0]-b[0])**2+4*(a[1]-b[1])**2+3*(a[2]-b[2])**2);
+const brv=(rgb)=>0.299*rgb[0]+0.587*rgb[1]+0.114*rgb[2];
+const bestC=(rgb,list)=>{let b=null,d=Infinity;for(const c of list){const x=dist(rgb,c.rgb);if(x<d){d=x;b=c;}}return b;};
+
+function limitP(ids,list,k){
+  const f={};ids.forEach(id=>{f[id]=(f[id]||0)+1;});
+  const s=Object.keys(f).sort((a,b)=>f[b]-f[a]);
+  if(s.length<=k)return null;
+  const keep=new Set(s.slice(0,k)),kc=list.filter(c=>keep.has(c.id)),remap={};
+  s.forEach(id=>{if(!keep.has(id)){const o=list.find(c=>c.id===id);if(o)remap[id]=bestC(o.rgb,kc).id;}});
+  return remap;
+}
+function procImg(el,n,list,k){
+  const o=document.createElement('canvas');o.width=n;o.height=n;
+  const ctx=o.getContext('2d');ctx.drawImage(el,0,0,n,n);
+  const data=ctx.getImageData(0,0,n,n),px=[],ids=[];
+  for(let y=0;y<n;y++){const row=[];for(let x=0;x<n;x++){
+    const i=(y*n+x)*4;let r=data.data[i],g=data.data[i+1],b=data.data[i+2],a=data.data[i+3];
+    if(a<128){r=255;g=255;b=255;}
+    const d=bestC([r,g,b],list);row.push(d);ids.push(d.id);
+  }px.push(row);}
+  const remap=limitP(ids,list,k);
+  if(remap)for(let y=0;y<n;y++)for(let x=0;x<n;x++){const id=px[y][x].id;if(remap[id])px[y][x]=list.find(c=>c.id===remap[id]);}
+  const u={};let si=0;
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const d=px[y][x];if(!u[d.id]){u[d.id]={...d,sym:SYM[si%SYM.length]};si++;}px[y][x]=u[d.id];}
+  return{px,u};
+}
+
+/* 공통 캔버스 그리기 */
+function drawPatCanvas(canvas,px){
+  const n=px.length,W=n*CELL+LW,H=n*CELL+LW;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#faf6f0';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ede8e0';ctx.fillRect(0,0,LW,H);ctx.fillRect(0,0,W,LW);
+  const fs=Math.max(6,Math.floor(CELL*.42));
+  ctx.font='bold '+fs+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const d=px[y][x],rgb=d.rgb;
+    ctx.fillStyle='rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';
+    ctx.fillRect(x*CELL+LW,y*CELL+LW,CELL,CELL);
+    ctx.fillStyle=brv(rgb)>128?'rgba(0,0,0,.75)':'rgba(255,255,255,.85)';
+    ctx.fillText(d.sym,x*CELL+LW+CELL/2,y*CELL+LW+CELL/2);
+  }
+  ctx.lineWidth=.5;ctx.strokeStyle='rgba(120,100,80,.3)';
+  for(let i=0;i<=n;i++){
+    ctx.beginPath();ctx.moveTo(i*CELL+LW,LW);ctx.lineTo(i*CELL+LW,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(LW,i*CELL+LW);ctx.lineTo(W,i*CELL+LW);ctx.stroke();
+  }
+  ctx.lineWidth=1.5;ctx.strokeStyle='rgba(100,70,50,.6)';
+  for(let i=0;i<=n;i+=5){
+    ctx.beginPath();ctx.moveTo(i*CELL+LW,LW);ctx.lineTo(i*CELL+LW,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(LW,i*CELL+LW);ctx.lineTo(W,i*CELL+LW);ctx.stroke();
+  }
+  ctx.font='bold 9px sans-serif';ctx.fillStyle='#7a6050';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<n;i+=5){
+    ctx.fillText(i+1,i*CELL+LW+CELL/2,LW/2);
+    ctx.fillText(i+1,LW/2,i*CELL+LW+CELL/2);
+  }
+}
+function drawColCanvas(canvas,px){
+  const n=px.length,W=n*CELL+LW,H=n*CELL+LW;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#faf6f0';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ede8e0';ctx.fillRect(0,0,LW,H);ctx.fillRect(0,0,W,LW);
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
+    const rgb=px[y][x].rgb;
+    ctx.fillStyle='rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';
+    ctx.fillRect(x*CELL+LW,y*CELL+LW,CELL,CELL);
+  }
+  ctx.lineWidth=.5;ctx.strokeStyle='rgba(150,130,110,.35)';
+  for(let i=0;i<=n;i++){
+    ctx.beginPath();ctx.moveTo(i*CELL+LW,LW);ctx.lineTo(i*CELL+LW,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(LW,i*CELL+LW);ctx.lineTo(W,i*CELL+LW);ctx.stroke();
+  }
+  ctx.lineWidth=1.5;ctx.strokeStyle='rgba(100,70,50,.5)';
+  for(let i=0;i<=n;i+=5){
+    ctx.beginPath();ctx.moveTo(i*CELL+LW,LW);ctx.lineTo(i*CELL+LW,H);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(LW,i*CELL+LW);ctx.lineTo(W,i*CELL+LW);ctx.stroke();
+  }
+  ctx.font='bold 9px sans-serif';ctx.fillStyle='#7a6050';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<n;i+=5){
+    ctx.fillText(i+1,i*CELL+LW+CELL/2,LW/2);
+    ctx.fillText(i+1,LW/2,i*CELL+LW+CELL/2);
+  }
+}
+
+/* ===== PNG 미리보기 모달 ===== */
+function openModal(dataUrl, title, filename){
+  modalDataUrl=dataUrl;
+  modalName=filename;
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-img').src=dataUrl;
+  document.getElementById('modal').classList.add('show');
+}
+document.getElementById('modal-close').addEventListener('click',()=>{
+  document.getElementById('modal').classList.remove('show');
+  document.getElementById('modal-img').src='';
+});
+document.getElementById('modal-try-save').addEventListener('click',()=>{
+  if(!modalDataUrl)return;
+  // blob 방식 시도
+  const arr=modalDataUrl.split(','),b64=atob(arr[1]);
+  const u8=new Uint8Array(b64.length);
+  for(let i=0;i<b64.length;i++)u8[i]=b64.charCodeAt(i);
+  const blob=new Blob([u8],{type:'image/png'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=modalName;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+  toast('저장 시도 중... 안 되면 이미지 길게 누르세요');
+});
+
+/* ===== 저장 버튼들 ===== */
+document.getElementById('sv-pat-png').addEventListener('click',()=>{
+  if(!patPx){toast('먼저 도안을 생성해주세요');return;}
+  const c=document.createElement('canvas');drawPatCanvas(c,patPx);
+  openModal(c.toDataURL('image/png'),'기호 도안 미리보기','자수도안_기호.png');
+});
+document.getElementById('sv-col-png').addEventListener('click',()=>{
+  if(!patPx){toast('먼저 도안을 생성해주세요');return;}
+  const c=document.createElement('canvas');drawColCanvas(c,patPx);
+  openModal(c.toDataURL('image/png'),'색상 도안 미리보기','자수도안_색상.png');
+});
+
+/* PDF 저장 — jsPDF CDN 동적 로드 */
+async function loadJsPDF(){
+  if(window.jspdf)return true;
+  return new Promise(res=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload=()=>res(true);s.onerror=()=>res(false);
+    document.head.appendChild(s);
+  });
+}
+async function makePdf(full){
+  if(!patPx){toast('먼저 도안을 생성해주세요');return;}
+  toast('PDF 생성 중...');
+  const ok=await loadJsPDF();
+  if(!ok){toast('PDF 라이브러리 로드 실패. 네트워크를 확인해주세요.');return;}
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const PW=210,PH=297,M=12;
+    doc.setFillColor(250,246,240);doc.rect(0,0,PW,PH,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(80,50,20);
+    doc.text('자수도안 (Embroidery Pattern)',PW/2,M+6,{align:'center'});
+    doc.setFontSize(9);doc.setTextColor(140,120,100);
+    doc.text('격자: '+gridN+'x'+gridN+'  /  사용색상: '+Object.keys(used).length+'가지',PW/2,M+12,{align:'center'});
+    /* 기호 도안 이미지 */
+    const c1=document.createElement('canvas');drawPatCanvas(c1,patPx);
+    const i1=c1.toDataURL('image/png');
+    const aw=PW-M*2,ah=120;
+    const r1=Math.min(aw/c1.width,ah/c1.height);
+    const iw1=c1.width*r1,ih1=c1.height*r1;
+    doc.addImage(i1,'PNG',(PW-iw1)/2,M+16,iw1,ih1);
+    /* 실 목록 표 */
+    const ly=M+16+ih1+8;
+    doc.setDrawColor(180,150,110);doc.setLineWidth(.3);doc.line(M,ly,PW-M,ly);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(80,50,20);
+    doc.text('DMC 실 목록',M,ly+7);
+    const entries=Object.entries(used),cols=3,ch=7,cw=(PW-M*2)/cols;
+    let row=0,col=0;
+    doc.setFontSize(7.5);
+    entries.forEach(([id,info])=>{
+      const x=M+col*cw,y=ly+13+row*ch;
+      if(y>PH-M-5){doc.addPage();doc.setFillColor(250,246,240);doc.rect(0,0,PW,PH,'F');row=0;col=0;}
+      const rgb=info.rgb;
+      doc.setFillColor(rgb[0],rgb[1],rgb[2]);
+      doc.setDrawColor(150,130,100);doc.setLineWidth(.2);
+      doc.rect(x,y-3.5,4.5,4.5,'FD');
+      const bv2=brv(rgb);
+      doc.setTextColor(bv2>128?50:220,bv2>128?30:200,bv2>128?10:180);
+      doc.text(info.sym,x+2.25,y-.5,{align:'center'});
+      doc.setTextColor(60,40,20);
+      doc.text('DMC '+id+' '+info.name.substring(0,18),x+6,y);
+      col++;if(col>=cols){col=0;row++;}
+    });
+    /* 색상 도안 페이지 */
+    if(full){
+      doc.addPage();
+      doc.setFillColor(250,246,240);doc.rect(0,0,PW,PH,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(80,50,20);
+      doc.text('색상 도안 (Color Reference)',PW/2,M+6,{align:'center'});
+      const c2=document.createElement('canvas');drawColCanvas(c2,patPx);
+      const i2=c2.toDataURL('image/png');
+      const r2=Math.min((PW-M*2)/c2.width,(PH-M*2-20)/c2.height);
+      doc.addImage(i2,'PNG',(PW-c2.width*r2)/2,M+14,c2.width*r2,c2.height*r2);
+    }
+    doc.save(full?'자수도안_전체.pdf':'자수도안_기호.pdf');
+    toast('PDF 저장 완료!');
+  }catch(e){toast('PDF 오류: '+e.message);console.error(e);}
+}
+document.getElementById('sv-pat-pdf').addEventListener('click',()=>makePdf(false));
+document.getElementById('sv-full-pdf').addEventListener('click',()=>makePdf(true));
+
+/* ===== 범례 ===== */
+function renderLeg(u){
+  const g=document.getElementById('lg');g.innerHTML='';
+  for(const[id,info]of Object.entries(u)){
+    const rgb=info.rgb,tc=brv(rgb)>128?'#1a0f0a':'#f0e6d8';
+    const el=document.createElement('div');el.className='li';
+    el.innerHTML='<div class="ls" style="background:rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+');color:'+tc+'">'+info.sym+'</div>'
+      +'<div class="li-info"><div class="ld">DMC '+id+'</div><div class="ln">'+info.name+'</div><div class="lr">('+rgb[0]+','+rgb[1]+','+rgb[2]+')</div></div>';
+    g.appendChild(el);
+  }
+}
+
+/* ===== 탭 ===== */
+document.querySelectorAll('.rtb').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.rtb').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const t=b.dataset.tab;
+    document.getElementById('tp').style.display=t==='pat'?'':'none';
+    document.getElementById('tc').style.display=t==='col'?'':'none';
+    document.getElementById('tl').style.display=t==='leg'?'':'none';
+  });
+});
+
+/* ===== 이미지 업로드 ===== */
+function loadI(f){
+  if(!f||!f.type.startsWith('image/'))return;
+  imgF=f;
+  document.getElementById('pi').src=URL.createObjectURL(f);
+  document.getElementById('uz').style.display='none';
+  document.getElementById('pvw').style.display='block';
+  document.getElementById('d1').classList.add('done');
+  chk();
+}
+document.getElementById('ii').addEventListener('change',e=>loadI(e.target.files[0]));
+document.getElementById('brm').addEventListener('click',()=>{
+  imgF=null;document.getElementById('pi').src='';
+  document.getElementById('uz').style.display='';document.getElementById('pvw').style.display='none';
+  document.getElementById('d1').classList.remove('done');chk();
+});
+const uz=document.getElementById('uz');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag');});
+uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));
+uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('drag');loadI(e.dataTransfer.files[0]);});
+
+/* ===== DMC ===== */
+document.getElementById('di').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{try{
+    dmcC=JSON.parse(ev.target.result);
+    document.getElementById('dl').textContent=f.name;
+    document.getElementById('db').style.display='';
+    document.getElementById('d2').classList.add('done');
+    toast('DMC '+dmcC.length+'가지 로드 완료');chk();
+  }catch{toast('JSON 파싱 실패');}};
+  r.readAsText(f);
+});
+document.getElementById('bdf').addEventListener('click',()=>{
+  dmcC=DMC;
+  document.getElementById('dl').textContent='기본 DMC 색상';
+  document.getElementById('db').style.display='';
+  document.getElementById('d2').classList.add('done');
+  toast('기본 DMC '+DMC.length+'가지 로드');chk();
+});
+
+/* ===== 슬라이더 & 색상 수 ===== */
+const gsl=document.getElementById('gsl');
+gsl.addEventListener('input',()=>{gridN=+gsl.value;document.getElementById('gv').textContent=gridN;document.getElementById('gs').textContent=' x '+gridN;});
+document.querySelectorAll('.cc').forEach(b=>{
+  b.addEventListener('click',()=>{document.querySelectorAll('.cc').forEach(x=>x.classList.remove('active'));b.classList.add('active');maxK=+b.dataset.v;});
+});
+function chk(){document.getElementById('bg').disabled=!(imgF&&dmcC);}
+
+/* ===== 생성 ===== */
+document.getElementById('bg').addEventListener('click',async()=>{
+  if(!imgF||!dmcC)return;
+  const pc=document.getElementById('pgc');
+  pc.style.display='block';document.getElementById('rsc').style.display='none';
+  pc.scrollIntoView({behavior:'smooth',block:'start'});
+  ['p1','p2','p3','p4'].forEach(id=>{const el=document.getElementById(id);el.classList.remove('active','done');});
+  const mk=async(id,d=220)=>{
+    await sl(d);document.getElementById(id).classList.add('active');
+    await sl(d);document.getElementById(id).classList.remove('active');document.getElementById(id).classList.add('done');
+  };
+  try{
+    const img=new Image();img.crossOrigin='anonymous';
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=URL.createObjectURL(imgF);});
+    await mk('p1',180);await sl(50);
+    const res=procImg(img,gridN,dmcC,maxK);patPx=res.px;used=res.u;
+    await mk('p2',220);await sl(50);
+    drawPatCanvas(document.getElementById('cp'),patPx);
+    drawColCanvas(document.getElementById('cc'),patPx);
+    renderLeg(used);
+    await mk('p3',180);await mk('p4',120);await sl(180);
+    pc.style.display='none';
+    const rc=document.getElementById('rsc');rc.style.display='block';
+    rc.scrollIntoView({behavior:'smooth',block:'start'});
+    toast(Object.keys(used).length+'가지 색상으로 완성!');
+    rzP();rzC();
+  }catch(e){pc.style.display='none';toast('오류: '+e.message);console.error(e);}
+});
+
+/* ===== 줌 & 드래그 ===== */
+function mkZ(wid,cid,pid,zi,zo,zf){
+  const w=document.getElementById(wid),c=document.getElementById(cid);
+  let sc=1,ox=0,oy=0,drag=false,lx=0,ly=0,pd=null;
+  const ap=()=>{
+    c.style.transform='translate('+ox+'px,'+oy+'px) scale('+sc+')';
+    document.getElementById(pid).textContent=Math.round(sc*100)+'%';
+  };
+  const cl=()=>{
+    const mxX=Math.max(0,(c.width*sc-w.clientWidth)/2);
+    const mxY=Math.max(0,(c.height*sc-w.clientHeight)/2);
+    if(sc<=1){ox=0;oy=0;return;}
+    ox=Math.min(mxX,Math.max(-mxX,ox));
+    oy=Math.min(mxY,Math.max(-mxY,oy));
+  };
+  w.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;e.preventDefault();});
+  window.addEventListener('mousemove',e=>{if(!drag)return;ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;cl();ap();});
+  window.addEventListener('mouseup',()=>drag=false);
+  w.addEventListener('touchstart',e=>{
+    if(e.touches.length===1){drag=true;lx=e.touches[0].clientX;ly=e.touches[0].clientY;}
+    else if(e.touches.length===2){pd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+  },{passive:true});
+  w.addEventListener('touchmove',e=>{
+    if(e.touches.length===1&&drag){ox+=e.touches[0].clientX-lx;oy+=e.touches[0].clientY-ly;lx=e.touches[0].clientX;ly=e.touches[0].clientY;cl();ap();}
+    else if(e.touches.length===2&&pd){const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);sc=Math.min(10,Math.max(0.3,sc*nd/pd));pd=nd;cl();ap();}
+    e.preventDefault();
+  },{passive:false});
+  w.addEventListener('touchend',()=>{drag=false;pd=null;});
+  document.getElementById(zi).addEventListener('click',()=>{sc=Math.min(10,sc*1.4);cl();ap();});
+  document.getElementById(zo).addEventListener('click',()=>{sc=Math.max(0.3,sc/1.4);cl();ap();});
+  document.getElementById(zf).addEventListener('click',()=>{sc=1;ox=0;oy=0;ap();});
+  return()=>{sc=1;ox=0;oy=0;ap();};
+}
+const rzP=mkZ('wp','cp','zpp','zip','zop','zfp');
+const rzC=mkZ('wc','cc','zpc','zic','zoc','zfc');
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+chk();
+</script>
+</body>
+</html>
